@@ -86,6 +86,8 @@
         }
       };
     }
-  ]);
+  ]).run(function($templateCache) {
+    return $templateCache.put('pagination.html', "<ul class=\"pagination\">\n  <li ng-repeat=\"page in pages\" ng-class=\"{current: page.active, unavailable: page.disabled}\">\n    <a ng-click=\"selectPage(page.number)\">{{page.text}}</a>\n  </li>\n</ul>");
+  });
 
 }).call(this);

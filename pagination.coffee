@@ -65,3 +65,12 @@ angular.module('ui.foundation.pagination', [])
       paginationCtrl.init(defaultConfig.itemsPerPage)
       paginationCtrl.render()
   ])
+
+  .run ($templateCache) ->
+    $templateCache.put 'pagination.html', """
+    <ul class="pagination">
+      <li ng-repeat="page in pages" ng-class="{current: page.active, unavailable: page.disabled}">
+        <a ng-click="selectPage(page.number)">{{page.text}}</a>
+      </li>
+    </ul>
+    """
