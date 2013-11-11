@@ -1,0 +1,24 @@
+{
+  "name": "Foundation UI for AngularJS",
+  "version": "0.0.1",
+  "homepage": "https://github.com/fuksito/angular-ui-foundation-pagination",
+  "authors": [
+    "Vitaliy Yanchuk <vitaliy@yanchuk.me>"
+  ],
+  "description": "UI elements build with Foundation framework to be used in AngularJS",
+  "keywords": [
+    "foundation",
+    "zurb",
+    "ui",
+    "pagination",
+    "angular"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
