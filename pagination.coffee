@@ -1,17 +1,27 @@
 class PaginationController
-  constructor: (@$scope) ->
+  constructor: (@$scope, @$attrs) ->
 
   init: (defaultItemsPerPage) ->
-    @itemsPerPage = defaultItemsPerPage;
-    @$scope.totalPages = @calculateTotalPages()
+
+    if @$scope.$parent.itemsPerPage
+      @$scope.itemsPerPage = @$scope.$parent.itemsPerPage
+    else
+      @$scope.itemsPerPage = defaultItemsPerPage
+
+
+    @$scope.selectPage = @selectPage
 
     @$scope.$watch 'currentPage', =>
       @render()
 
-    @$scope.selectPage = @selectPage
+    @$scope.$watch 'totalItems', =>
+      @$scope.totalPages = @calculateTotalPages()
+
+    @$scope.$watch 'totalPages', =>
+      @render()
 
   calculateTotalPages: ->
-    totalPages = if @itemsPerPage < 1 then 1 else  Math.ceil(@$scope.totalItems / @itemsPerPage)
+    totalPages = if @$scope.itemsPerPage < 1 then 1 else  Math.ceil(@$scope.totalItems / @$scope.itemsPerPage)
     Math.max(totalPages || 0, 1)
 
   render: ->
@@ -43,7 +53,7 @@ class PaginationController
     @$scope.currentPage = pageNumber
 
 
-PaginationController.$inject = ['$scope']
+PaginationController.$inject = ['$scope', '$attrs', '$parse']
 angular.module('ui.foundation.pagination', [])
   
   .controller('PaginationController', PaginationController)

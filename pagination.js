@@ -4,24 +4,34 @@
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   PaginationController = (function() {
-    function PaginationController($scope) {
+    function PaginationController($scope, $attrs) {
       this.$scope = $scope;
+      this.$attrs = $attrs;
       this.selectPage = __bind(this.selectPage, this);
     }
 
     PaginationController.prototype.init = function(defaultItemsPerPage) {
       var _this = this;
-      this.itemsPerPage = defaultItemsPerPage;
-      this.$scope.totalPages = this.calculateTotalPages();
+      if (this.$scope.$parent.itemsPerPage) {
+        this.$scope.itemsPerPage = this.$scope.$parent.itemsPerPage;
+      } else {
+        this.$scope.itemsPerPage = defaultItemsPerPage;
+      }
+      this.$scope.selectPage = this.selectPage;
       this.$scope.$watch('currentPage', function() {
         return _this.render();
       });
-      return this.$scope.selectPage = this.selectPage;
+      this.$scope.$watch('totalItems', function() {
+        return _this.$scope.totalPages = _this.calculateTotalPages();
+      });
+      return this.$scope.$watch('totalPages', function() {
+        return _this.render();
+      });
     };
 
     PaginationController.prototype.calculateTotalPages = function() {
       var totalPages;
-      totalPages = this.itemsPerPage < 1 ? 1 : Math.ceil(this.$scope.totalItems / this.itemsPerPage);
+      totalPages = this.$scope.itemsPerPage < 1 ? 1 : Math.ceil(this.$scope.totalItems / this.$scope.itemsPerPage);
       return Math.max(totalPages || 0, 1);
     };
 
@@ -64,7 +74,7 @@
 
   })();
 
-  PaginationController.$inject = ['$scope'];
+  PaginationController.$inject = ['$scope', '$attrs', '$parse'];
 
   angular.module('ui.foundation.pagination', []).controller('PaginationController', PaginationController).constant('paginationConfig', {
     itemsPerPage: 10
