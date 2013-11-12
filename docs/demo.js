@@ -4,7 +4,7 @@ angular.module('demoApp')
   .controller('DemoCtrl', function($scope){
     $scope.angularLoaded = 'YES'  
 
-    $scope.totalItems = 25;
-    $scope.currentPage = 1;
-    $scope.itemsPerPage = 3;
+    $scope.totalItems = 145
+    $scope.currentPage = 3
+    $scope.itemsPerPage = 10
   })

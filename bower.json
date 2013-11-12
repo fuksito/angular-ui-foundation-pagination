@@ -1,11 +1,12 @@
 {
-  "name": "Foundation UI for AngularJS",
-  "version": "0.0.1",
+  "name": "angular-ui-foundation-pagination",
+  "version": "0.0.4",
   "homepage": "https://github.com/fuksito/angular-ui-foundation-pagination",
+  "main": "./pagination.js",
   "authors": [
     "Vitaliy Yanchuk <vitaliy@yanchuk.me>"
   ],
-  "description": "UI elements build with Foundation framework to be used in AngularJS",
+  "description": "Foundation UI elements for AngularJS UI",
   "keywords": [
     "foundation",
     "zurb",
@@ -20,5 +21,9 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "devDependencies": {
+      "angular": "~>1.2.0",
+      "angular-mocks": "~>1.2.0"
+    }
 }

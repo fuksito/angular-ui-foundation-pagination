@@ -29,6 +29,12 @@ class PaginationController
     if @currentPage > 0 && @currentPage <= @$scope.totalPages
       @$scope.pages = @getPages(@currentPage, @$scope.totalPages)
 
+  noPrevious: ->
+    @currentPage is 1
+
+  noNext: ->
+    @currentPage is @$scope.totalPages
+
   isActive: (pageNumber) ->
     @currentPage is pageNumber
 
@@ -46,6 +52,15 @@ class PaginationController
     # Add page number links
     for number in [startPage..endPage]
       pages.push(@makePage(number, number, @isActive(number), false))
+
+    # Direction links
+    previousText =  '&laquo;'
+    nextText = "&raquo;"
+    previousPage = @makePage(currentPage - 1, previousText, false, @noPrevious())
+    pages.unshift(previousPage)
+    nextPage = @makePage(currentPage + 1, nextText, false, @noNext())
+    pages.push(nextPage)
+    # /Direction links
 
     pages
 
@@ -80,7 +95,7 @@ angular.module('ui.foundation.pagination', [])
     $templateCache.put 'pagination.html', """
     <ul class="pagination">
       <li ng-repeat="page in pages" ng-class="{current: page.active, unavailable: page.disabled}">
-        <a ng-click="selectPage(page.number)">{{page.text}}</a>
+        <a ng-click="selectPage(page.number)" ng-bind="page.text"></a>
       </li>
     </ul>
     """
