@@ -11,8 +11,8 @@ describe 'pagination directive', ->
     $rootScope = _$rootScope_
 
     $rootScope.itemsPerPage = 10
-    $rootScope.totalItems = 25 # 3 pages
-    $rootScope.currentPage = 1
+    $rootScope.totalItems = 47 # 5 pages
+    $rootScope.currentPage = 3
     
     element = $compile('<div><pagination total-items="totalItems" current-page="currentPage"></pagination></div>')($rootScope)
     $rootScope.$digest()
@@ -37,6 +37,8 @@ describe 'pagination directive', ->
   it 'contains one ul and num-pages li elements', ->
     expect(element.find('ul').length).toBe(1)
     expect(element.find('li').length).toBe(3)
+    expect(getPaginationEl(0).text()).toBe('Previous');
+    expect(getPaginationEl(-1).text()).toBe('Next');
 
   it 'sets the current page to be active', ->
     expect(getPaginationEl($rootScope.currentPage).hasClass('active')).toBe(true);

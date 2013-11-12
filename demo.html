@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+    <script src="docs/demo.js"></script>
+    <script src="pagination.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="docs/foundation/css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="docs/foundation/css/foundation.css">
+
+  </head>
+  <body ng-app="demoApp">
+    
+    <section class="main" ng-controller="DemoCtrl">
+
+      <div class="row">
+        <div class="large-12 columns">
+          <h1 class="docs header">Foundation Pagination for {{angularLoadedText}}</h1>
+          <hr />
+        </div>
+      </div>
+
+      <div class="row" ng-controller="defaultCtrl">
+        <div class="large-12 columns">
+          <h3>Default</h3>
+          <div>
+            <pagination current-page='currentPage' total-items='totalItems'></pagination>
+            <hr/>
+          </div>
+
+          <div>
+            <pagination first-text="'&laquo;'" previous-text="'&lsaquo;'" next-text="'&rsaquo;'" last-text="'&raquo;'" boundary-links='true' current-page='currentPage' total-items='totalItems'></pagination>
+            <hr/>
+          </div>
+
+          <div>
+            <pagination boundary-links='true' direction-links='false' current-page='currentPage' total-items='totalItems'></pagination>
+            <hr/>
+          </div>
+
+          <div>
+            <pagination direction-links='false' current-page='currentPage' total-items='totalItems'></pagination>
+            <hr/>
+          </div>
+
+          <div>
+            <pagination boundary-links='true' current-page='currentPage' total-items='totalItems'></pagination>
+            <hr/>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="row" ng-controller="limitCtrl">
+        <div class="large-12 columns">
+          <h3>Limiting pages buttons count</h3>
+
+          <div>
+            <pagination boundary-links='true' max-size="maxSize" current-page='currentPage' total-items='totalItems'></pagination>
+            <hr/>
+          </div>
+
+          <div>
+            <pagination boundary-links='true' max-size="maxSize" rotate="false" current-page='currentPage' total-items='totalItems'></pagination>
+            <hr/>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </body>
+</html>

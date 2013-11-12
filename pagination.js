@@ -4,20 +4,39 @@
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   PaginationController = (function() {
-    function PaginationController($scope, $attrs) {
+    function PaginationController($scope, $attrs, $interpolate, defaultConfig) {
       this.$scope = $scope;
       this.$attrs = $attrs;
+      this.$interpolate = $interpolate;
+      this.defaultConfig = defaultConfig;
       this.selectPage = __bind(this.selectPage, this);
     }
 
-    PaginationController.prototype.init = function(defaultItemsPerPage) {
+    PaginationController.prototype.init = function(ctrlAttrs) {
+      this.init_config(ctrlAttrs);
+      this.init_watchers();
+      return this.init_scope_bindings();
+    };
+
+    PaginationController.prototype.init_scope_bindings = function() {
+      return this.$scope.selectPage = this.selectPage;
+    };
+
+    PaginationController.prototype.init_config = function(ctrlAttrs) {
+      this.itemsPerPage = this.$scope.$parent.itemsPerPage || this.defaultConfig.itemsPerPage;
+      this.$scope.itemsPerPage = this.itemsPerPage;
+      this.boundaryLinks = this.getAttributeValue(ctrlAttrs.boundaryLinks, this.defaultConfig.boundaryLinks);
+      this.directionLinks = this.getAttributeValue(ctrlAttrs.directionLinks, this.defaultConfig.directionLinks);
+      this.firstText = this.getAttributeValue(ctrlAttrs.firstText, this.defaultConfig.firstText);
+      this.previousText = this.getAttributeValue(ctrlAttrs.previousText, this.defaultConfig.previousText);
+      this.nextText = this.getAttributeValue(ctrlAttrs.nextText, this.defaultConfig.nextText);
+      this.lastText = this.getAttributeValue(ctrlAttrs.lastText, this.defaultConfig.lastText);
+      this.rotate = this.getAttributeValue(ctrlAttrs.rotate, this.defaultConfig.rotate);
+      return this.maxSize = this.getAttributeValue(ctrlAttrs.maxSize, this.defaultConfig.maxSize);
+    };
+
+    PaginationController.prototype.init_watchers = function() {
       var _this = this;
-      if (this.$scope.$parent.itemsPerPage) {
-        this.$scope.itemsPerPage = this.$scope.$parent.itemsPerPage;
-      } else {
-        this.$scope.itemsPerPage = defaultItemsPerPage;
-      }
-      this.$scope.selectPage = this.selectPage;
       this.$scope.$watch('currentPage', function() {
         return _this.render();
       });
@@ -27,6 +46,18 @@
       return this.$scope.$watch('totalPages', function() {
         return _this.render();
       });
+    };
+
+    PaginationController.prototype.getAttributeValue = function(attribute, defaultValue, interpolate) {
+      if (angular.isDefined(attribute)) {
+        if (interpolate) {
+          return this.$interpolate(attribute)(this.$scope.$parent);
+        } else {
+          return this.$scope.$parent.$eval(attribute);
+        }
+      } else {
+        return defaultValue;
+      }
     };
 
     PaginationController.prototype.calculateTotalPages = function() {
@@ -40,6 +71,14 @@
       if (this.currentPage > 0 && this.currentPage <= this.$scope.totalPages) {
         return this.$scope.pages = this.getPages(this.currentPage, this.$scope.totalPages);
       }
+    };
+
+    PaginationController.prototype.noPrevious = function() {
+      return this.currentPage === 1;
+    };
+
+    PaginationController.prototype.noNext = function() {
+      return this.currentPage === this.$scope.totalPages;
     };
 
     PaginationController.prototype.isActive = function(pageNumber) {
@@ -56,12 +95,48 @@
     };
 
     PaginationController.prototype.getPages = function(currentPage, totalPages) {
-      var endPage, number, pages, startPage, _i;
+      var endPage, firstPage, isMaxSized, lastPage, nextPage, nextPageSet, number, pages, previousPage, previousPageSet, startPage, _i;
       pages = [];
       startPage = 1;
       endPage = totalPages;
+      isMaxSized = this.maxSize && this.maxSize < totalPages;
+      if (isMaxSized) {
+        if (this.rotate) {
+          startPage = Math.max(currentPage - Math.floor(this.maxSize / 2), 1);
+          endPage = startPage + this.maxSize - 1;
+          if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = endPage - this.maxSize + 1;
+          }
+        } else {
+          startPage = ((Math.ceil(currentPage / this.maxSize) - 1) * this.maxSize) + 1;
+          endPage = Math.min(startPage + this.maxSize - 1, totalPages);
+        }
+      }
       for (number = _i = startPage; startPage <= endPage ? _i <= endPage : _i >= endPage; number = startPage <= endPage ? ++_i : --_i) {
         pages.push(this.makePage(number, number, this.isActive(number), false));
+      }
+      if (isMaxSized && !this.rotate) {
+        if (startPage > 1) {
+          previousPageSet = this.makePage(startPage - 1, '...', false, false);
+          pages.unshift(previousPageSet);
+        }
+        if (endPage < totalPages) {
+          nextPageSet = this.makePage(endPage + 1, '...', false, false);
+          pages.push(nextPageSet);
+        }
+      }
+      if (this.directionLinks) {
+        previousPage = this.makePage(currentPage - 1, this.previousText, false, this.noPrevious());
+        pages.unshift(previousPage);
+        nextPage = this.makePage(currentPage + 1, this.nextText, false, this.noNext());
+        pages.push(nextPage);
+      }
+      if (this.boundaryLinks) {
+        firstPage = this.makePage(1, this.firstText, false, this.noPrevious());
+        pages.unshift(firstPage);
+        lastPage = this.makePage(totalPages, this.lastText, false, this.noNext());
+        pages.push(lastPage);
       }
       return pages;
     };
@@ -74,12 +149,20 @@
 
   })();
 
-  PaginationController.$inject = ['$scope', '$attrs', '$parse'];
+  PaginationController.$inject = ['$scope', '$attrs', '$interpolate', 'paginationConfig'];
 
   angular.module('ui.foundation.pagination', []).controller('PaginationController', PaginationController).constant('paginationConfig', {
-    itemsPerPage: 10
+    itemsPerPage: 10,
+    boundaryLinks: false,
+    directionLinks: true,
+    firstText: 'First',
+    previousText: 'Previous',
+    nextText: 'Next',
+    lastText: 'Last',
+    rotate: true,
+    maxSize: 10
   }).directive('pagination', [
-    '$parse', 'paginationConfig', function($parse, defaultConfig) {
+    function() {
       return {
         restrict: 'EA',
         scope: {
@@ -91,13 +174,13 @@
         templateUrl: 'pagination.html',
         replace: true,
         link: function(scope, element, attrs, paginationCtrl) {
-          paginationCtrl.init(defaultConfig.itemsPerPage);
+          paginationCtrl.init(attrs);
           return paginationCtrl.render();
         }
       };
     }
   ]).run(function($templateCache) {
-    return $templateCache.put('pagination.html', "<ul class=\"pagination\">\n  <li ng-repeat=\"page in pages\" ng-class=\"{current: page.active, unavailable: page.disabled}\">\n    <a ng-click=\"selectPage(page.number)\">{{page.text}}</a>\n  </li>\n</ul>");
+    return $templateCache.put('pagination.html', "<ul class=\"pagination\">\n  <li ng-repeat=\"page in pages\" ng-class=\"{current: page.active, unavailable: page.disabled}\">\n    <a ng-click=\"selectPage(page.number)\" ng-bind-html-unsafe=\"page.text\"></a>\n  </li>\n</ul>");
   });
 
 }).call(this);
