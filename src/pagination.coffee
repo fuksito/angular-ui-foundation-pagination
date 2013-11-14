@@ -1,17 +1,19 @@
 class PaginationController
-  constructor: (@$scope, @$attrs, @$interpolate, @defaultConfig) ->
+  constructor: (@$scope, @$attrs, @$interpolate, @$parse, @defaultConfig) ->
 
   init: (ctrlAttrs) ->
     @init_config(ctrlAttrs)
-    @init_watchers()
+    @init_watchers(ctrlAttrs)
     @init_scope_bindings()
 
   init_scope_bindings: ->
     @$scope.selectPage = @selectPage
 
-  init_config: (ctrlAttrs)->
-    @itemsPerPage   = @$scope.$parent.itemsPerPage    || @defaultConfig.itemsPerPage
-    @$scope.itemsPerPage = @itemsPerPage
+  init_config: (ctrlAttrs) ->
+    if ctrlAttrs.itemsPerPage
+      @itemsPerPage = @getAttributeValue( ctrlAttrs.itemsPerPage, @defaultConfig.itemsPerPage )
+    else
+      @itemsPerPage = @defaultConfig.itemsPerPage
 
     @boundaryLinks  = @getAttributeValue( ctrlAttrs.boundaryLinks, @defaultConfig.boundaryLinks )      
     @directionLinks = @getAttributeValue( ctrlAttrs.directionLinks, @defaultConfig.directionLinks )
@@ -21,8 +23,9 @@ class PaginationController
     @lastText       = @getAttributeValue( ctrlAttrs.lastText, @defaultConfig.lastText )
     @rotate         = @getAttributeValue( ctrlAttrs.rotate, @defaultConfig.rotate )
     @maxSize        = @getAttributeValue( ctrlAttrs.maxSize, @defaultConfig.maxSize )
+    @currentPage    = @getAttributeValue( ctrlAttrs.currentPage, 1 )
 
-  init_watchers: ->
+  init_watchers: (ctrlAttrs) ->
     @$scope.$watch 'currentPage', =>
       @render()
 
@@ -30,7 +33,15 @@ class PaginationController
       @$scope.totalPages = @calculateTotalPages()
 
     @$scope.$watch 'totalPages', =>
+      # selects the last page when current page is too big
+      if @$scope.currentPage > @$scope.totalPages
+        @$scope.currentPage = @$scope.totalPages
       @render()
+
+    if ctrlAttrs.itemsPerPage
+      @$scope.$parent.$watch @$parse(ctrlAttrs.itemsPerPage), (value) =>
+        @itemsPerPage = parseInt(value, 10)
+        @$scope.totalPages = @calculateTotalPages()
 
   getAttributeValue: (attribute, defaultValue, interpolate) ->
     if angular.isDefined(attribute)
@@ -42,22 +53,23 @@ class PaginationController
       defaultValue
 
   calculateTotalPages: ->
-    totalPages = if @$scope.itemsPerPage < 1 then 1 else  Math.ceil(@$scope.totalItems / @$scope.itemsPerPage)
+    totalPages = if @itemsPerPage < 1 then 1 else  Math.ceil(@$scope.totalItems / @itemsPerPage)
     Math.max(totalPages || 0, 1)
 
   render: ->
-    @currentPage = parseInt(@$scope.currentPage, 10) || 1;
-    if @currentPage > 0 && @currentPage <= @$scope.totalPages
-      @$scope.pages = @getPages(@currentPage, @$scope.totalPages)
+    @current_page = parseInt(@$scope.currentPage, 10) || 1;
+    @$scope.totalPages = parseInt(@$scope.totalPages, 10) || 1
+    if @current_page > 0
+      @$scope.pages = @getPages(@current_page, @$scope.totalPages)
 
   noPrevious: ->
-    @currentPage is 1
+    @current_page is 1
 
   noNext: ->
-    @currentPage is @$scope.totalPages
+    @current_page is @$scope.totalPages
 
   isActive: (pageNumber) ->
-    @currentPage is pageNumber
+    @current_page is pageNumber
 
   makePage: (number, text, isActive, isDisabled) ->
     number: number
@@ -71,8 +83,6 @@ class PaginationController
     endPage = totalPages
     isMaxSized = @maxSize and @maxSize < totalPages
     
-    # console.log(isMaxSized, @maxSize)
-
     # recompute if maxSized
     if isMaxSized
       if @rotate
@@ -122,9 +132,11 @@ class PaginationController
     pages
 
   selectPage: (pageNumber) =>
-    @$scope.currentPage = pageNumber
+    if @isActive and pageNumber > 0 and pageNumber <= @$scope.totalPages
+      @$scope.currentPage = pageNumber
+      @$scope.onSelectPage({ page: pageNumber })
 
-PaginationController.$inject = ['$scope', '$attrs', '$interpolate', 'paginationConfig']
+PaginationController.$inject = ['$scope', '$attrs', '$interpolate', '$parse', 'paginationConfig']
 
 angular.module('ui.foundation.pagination', [])
   
@@ -159,7 +171,7 @@ angular.module('ui.foundation.pagination', [])
     $templateCache.put 'pagination.html', """
     <ul class="pagination">
       <li ng-repeat="page in pages" ng-class="{current: page.active, unavailable: page.disabled}">
-        <a ng-click="selectPage(page.number)" ng-bind-html-unsafe="page.text"></a>
+        <a ng-click="selectPage(page.number)">{{page.text}}</a>
       </li>
     </ul>
     """
