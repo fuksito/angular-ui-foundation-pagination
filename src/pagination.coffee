@@ -22,7 +22,7 @@ class PaginationController
     @nextText       = @getAttributeValue( ctrlAttrs.nextText, @defaultConfig.nextText )
     @lastText       = @getAttributeValue( ctrlAttrs.lastText, @defaultConfig.lastText )
     @rotate         = @getAttributeValue( ctrlAttrs.rotate, @defaultConfig.rotate )
-    @maxSize        = @getAttributeValue( ctrlAttrs.maxSize, @defaultConfig.maxSize )
+    @maxSize        = @getAttributeValue( ctrlAttrs.maxSize, null )
     @currentPage    = @getAttributeValue( ctrlAttrs.currentPage, 1 )
 
   init_watchers: (ctrlAttrs) ->
@@ -42,6 +42,11 @@ class PaginationController
       @$scope.$parent.$watch @$parse(ctrlAttrs.itemsPerPage), (value) =>
         @itemsPerPage = parseInt(value, 10)
         @$scope.totalPages = @calculateTotalPages()
+
+    if ctrlAttrs.maxSize
+      @$scope.$parent.$watch @$parse(ctrlAttrs.maxSize), (value) =>
+        @maxSize = parseInt(value, 10)
+        @render()
 
   getAttributeValue: (attribute, defaultValue, interpolate) ->
     if angular.isDefined(attribute)
@@ -81,8 +86,9 @@ class PaginationController
     pages = []
     startPage = 1
     endPage = totalPages
-    isMaxSized = @maxSize and @maxSize < totalPages
     
+    isMaxSized = (@maxSize != null && @maxSize < totalPages)
+    # console.log( ' ' + @maxSize + ' ' + isMaxSized )
     # recompute if maxSized
     if isMaxSized
       if @rotate
@@ -93,7 +99,8 @@ class PaginationController
         # Adjust if limit is exceeded
         if (endPage > totalPages)
           endPage   = totalPages;
-          startPage = endPage - @maxSize + 1;
+          startPage = endPage - @maxSize + 1
+
       else
         # Visible pages are paginated with maxSize
         startPage = ((Math.ceil(currentPage / @maxSize) - 1) * @maxSize) + 1
@@ -101,8 +108,9 @@ class PaginationController
         endPage = Math.min(startPage + @maxSize - 1, totalPages)
 
     # Add page number links
-    for number in [startPage..endPage]
-      pages.push(@makePage(number, number, @isActive(number), false))
+    if startPage <= endPage # todo: don't like this check. the [3..2] should result in [] and not in array. mb rewrite to loop
+      for number in [startPage..endPage]
+        pages.push(@makePage(number, number, @isActive(number), false))
 
     # Add links to move between page sets
     if isMaxSized and not @rotate
@@ -151,7 +159,6 @@ angular.module('ui.foundation.pagination', [])
     nextText: 'Next'
     lastText: 'Last'
     rotate: true
-    maxSize: 10
   
   .directive('pagination', [ ->
     restrict: 'EA',
@@ -167,7 +174,7 @@ angular.module('ui.foundation.pagination', [])
       paginationCtrl.render()
   ])
 
-  .run ($templateCache) ->
+  .run(['$templateCache', ($templateCache) ->
     $templateCache.put 'pagination.html', """
     <ul class="pagination">
       <li ng-repeat="page in pages" ng-class="{current: page.active, unavailable: page.disabled}">
@@ -175,3 +182,4 @@ angular.module('ui.foundation.pagination', [])
       </li>
     </ul>
     """
+  ])

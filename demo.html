@@ -23,6 +23,12 @@
       <div class="row">
         <div class="large-12 columns">
           <h3>Default</h3>
+
+          <div>
+            <pagination rotate="false" max-size='maxSizeZero' current-page='currentPage' total-items='totalItems'></pagination>
+            <hr/>
+          </div>
+
           <div>
             <pagination current-page='currentPage' total-items='totalItems'></pagination>
             <hr/>
@@ -56,12 +62,12 @@
           <h3>Limiting pages buttons count</h3>
 
           <div>
-            <pagination boundary-links='true' max-size="maxSize" current-page='currentPage' total-items='totalItems'></pagination>
+            <pagination boundary-links='true' max-size="maxSize" current-page='currentPage' total-items='bigTotalItems'></pagination>
             <hr/>
           </div>
 
           <div>
-            <pagination boundary-links='true' max-size="maxSize" rotate="false" current-page='currentPage' total-items='totalItems'></pagination>
+            <pagination boundary-links='true' max-size="maxSize" rotate="false" current-page='currentPage' total-items='bigTotalItems'></pagination>
             <hr/>
           </div>
           

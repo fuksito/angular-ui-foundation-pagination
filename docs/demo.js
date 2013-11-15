@@ -11,4 +11,6 @@ angular.module('demoApp')
     $scope.bigTotalItems = 167 // 5 pages
     $scope.maxSize = 5
 
+    $scope.maxSizeZero = 0
+    $scope.dontRotate = false
   })
