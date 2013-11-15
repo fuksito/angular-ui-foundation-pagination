@@ -16,7 +16,8 @@
     PaginationController.prototype.init = function(ctrlAttrs) {
       this.init_config(ctrlAttrs);
       this.init_watchers(ctrlAttrs);
-      return this.init_scope_bindings();
+      this.init_scope_bindings();
+      return this.setNumPages = ctrlAttrs.numPages ? this.$parse(ctrlAttrs.numPages).assign : angular.noop;
     };
 
     PaginationController.prototype.init_scope_bindings = function() {
@@ -31,10 +32,10 @@
       }
       this.boundaryLinks = this.getAttributeValue(ctrlAttrs.boundaryLinks, this.defaultConfig.boundaryLinks);
       this.directionLinks = this.getAttributeValue(ctrlAttrs.directionLinks, this.defaultConfig.directionLinks);
-      this.firstText = this.getAttributeValue(ctrlAttrs.firstText, this.defaultConfig.firstText);
-      this.previousText = this.getAttributeValue(ctrlAttrs.previousText, this.defaultConfig.previousText);
-      this.nextText = this.getAttributeValue(ctrlAttrs.nextText, this.defaultConfig.nextText);
-      this.lastText = this.getAttributeValue(ctrlAttrs.lastText, this.defaultConfig.lastText);
+      this.firstText = this.getAttributeValue(ctrlAttrs.firstText, this.defaultConfig.firstText, true);
+      this.previousText = this.getAttributeValue(ctrlAttrs.previousText, this.defaultConfig.previousText, true);
+      this.nextText = this.getAttributeValue(ctrlAttrs.nextText, this.defaultConfig.nextText, true);
+      this.lastText = this.getAttributeValue(ctrlAttrs.lastText, this.defaultConfig.lastText, true);
       this.rotate = this.getAttributeValue(ctrlAttrs.rotate, this.defaultConfig.rotate);
       this.maxSize = this.getAttributeValue(ctrlAttrs.maxSize, null);
       return this.currentPage = this.getAttributeValue(ctrlAttrs.currentPage, 1);
@@ -48,7 +49,8 @@
       this.$scope.$watch('totalItems', function() {
         return _this.$scope.totalPages = _this.calculateTotalPages();
       });
-      this.$scope.$watch('totalPages', function() {
+      this.$scope.$watch('totalPages', function(value) {
+        _this.setNumPages(_this.$scope.$parent, value);
         if (_this.$scope.currentPage > _this.$scope.totalPages) {
           _this.$scope.currentPage = _this.$scope.totalPages;
         }

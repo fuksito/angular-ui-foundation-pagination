@@ -5,6 +5,7 @@ class PaginationController
     @init_config(ctrlAttrs)
     @init_watchers(ctrlAttrs)
     @init_scope_bindings()
+    @setNumPages = if ctrlAttrs.numPages then @$parse(ctrlAttrs.numPages).assign else angular.noop
 
   init_scope_bindings: ->
     @$scope.selectPage = @selectPage
@@ -17,10 +18,10 @@ class PaginationController
 
     @boundaryLinks  = @getAttributeValue( ctrlAttrs.boundaryLinks, @defaultConfig.boundaryLinks )      
     @directionLinks = @getAttributeValue( ctrlAttrs.directionLinks, @defaultConfig.directionLinks )
-    @firstText      = @getAttributeValue( ctrlAttrs.firstText, @defaultConfig.firstText )
-    @previousText   = @getAttributeValue( ctrlAttrs.previousText, @defaultConfig.previousText )
-    @nextText       = @getAttributeValue( ctrlAttrs.nextText, @defaultConfig.nextText )
-    @lastText       = @getAttributeValue( ctrlAttrs.lastText, @defaultConfig.lastText )
+    @firstText      = @getAttributeValue( ctrlAttrs.firstText, @defaultConfig.firstText, true )
+    @previousText   = @getAttributeValue( ctrlAttrs.previousText, @defaultConfig.previousText, true )
+    @nextText       = @getAttributeValue( ctrlAttrs.nextText, @defaultConfig.nextText, true )
+    @lastText       = @getAttributeValue( ctrlAttrs.lastText, @defaultConfig.lastText, true )
     @rotate         = @getAttributeValue( ctrlAttrs.rotate, @defaultConfig.rotate )
     @maxSize        = @getAttributeValue( ctrlAttrs.maxSize, null )
     @currentPage    = @getAttributeValue( ctrlAttrs.currentPage, 1 )
@@ -32,7 +33,10 @@ class PaginationController
     @$scope.$watch 'totalItems', =>
       @$scope.totalPages = @calculateTotalPages()
 
-    @$scope.$watch 'totalPages', =>
+    @$scope.$watch 'totalPages', (value) =>
+      # Readonly variable
+      @setNumPages(@$scope.$parent, value); 
+
       # selects the last page when current page is too big
       if @$scope.currentPage > @$scope.totalPages
         @$scope.currentPage = @$scope.totalPages

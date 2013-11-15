@@ -110,42 +110,42 @@ describe 'pagination directive', ->
     expect($rootScope.currentPage).toBe 1
 
   describe '`items-per-page`', ->
-      beforeEach(inject( ->
-        $rootScope.perpage = 5
-        element = $compile('<pagination total-items="totalItems" items-per-page="perpage" current-page="currentPage" on-select-page="selectPageHandler(page)"></pagination>')($rootScope)
-        $rootScope.$digest()
-      ))
+    beforeEach(inject( ->
+      $rootScope.perpage = 5
+      element = $compile('<div><pagination total-items="totalItems" items-per-page="perpage" current-page="currentPage" on-select-page="selectPageHandler(page)"></pagination></div>')($rootScope)
+      $rootScope.$digest()
+    ))
 
-      it 'changes the number of pages', ->
-        expect(getPaginationBarSize()).toBe(12)
-        expect(getPaginationElText(0)).toBe('Previous')
-        expect(getPaginationElText(-1)).toBe('Next')
+    it 'changes the number of pages', ->
+      expect(getPaginationBarSize()).toBe(12)
+      expect(getPaginationElText(0)).toBe('Previous')
+      expect(getPaginationElText(-1)).toBe('Next')
 
-      it 'changes the number of pages when changes', ->
-        $rootScope.perpage = 20
-        $rootScope.$digest()
+    it 'changes the number of pages when changes', ->
+      $rootScope.perpage = 20
+      $rootScope.$digest()
 
-        expect(getPaginationBarSize()).toBe(5)
-        expect(getPaginationElText(0)).toBe('Previous')
-        expect(getPaginationElText(-1)).toBe('Next')
+      expect(getPaginationBarSize()).toBe(5)
+      expect(getPaginationElText(0)).toBe('Previous')
+      expect(getPaginationElText(-1)).toBe('Next')
 
-      it 'selects the last page when current page is too big', ->
-        $rootScope.perpage = 30
-        $rootScope.$digest()
+    it 'selects the last page when current page is too big', ->
+      $rootScope.perpage = 30
+      $rootScope.$digest()
 
-        expect($rootScope.currentPage).toBe(2)
-        expect(getPaginationBarSize()).toBe(4)
-        expect(getPaginationElText(0)).toBe('Previous')
-        expect(getPaginationElText(-1)).toBe('Next')
+      expect($rootScope.currentPage).toBe(2)
+      expect(getPaginationBarSize()).toBe(4)
+      expect(getPaginationElText(0)).toBe('Previous')
+      expect(getPaginationElText(-1)).toBe('Next')
 
-      it 'displays a single page when it is negative', ->
-        $rootScope.perpage = -1
-        $rootScope.$digest()
+    it 'displays a single page when it is negative', ->
+      $rootScope.perpage = -1
+      $rootScope.$digest()
 
-        expect(getPaginationBarSize()).toBe(3)
-        expect(getPaginationElText(0)).toBe('Previous')
-        expect(getPaginationElText(1)).toBe('1')
-        expect(getPaginationElText(-1)).toBe('Next')
+      expect(getPaginationBarSize()).toBe(3)
+      expect(getPaginationElText(0)).toBe('Previous')
+      expect(getPaginationElText(1)).toBe('1')
+      expect(getPaginationElText(-1)).toBe('Next')
 
   describe 'executes `on-select-page` expression', ->
     beforeEach(inject( ->
@@ -228,7 +228,7 @@ describe 'pagination directive', ->
       $rootScope.currentPage = 7
       $rootScope.maxSize = 5
       $rootScope.rotate = false
-      element = $compile("<pagination total-items=\"total\" current-page=\"currentPage\" max-size=\"maxSize\" rotate=\"rotate\"></pagination>")($rootScope)
+      element = $compile("<div><pagination total-items=\"total\" current-page=\"currentPage\" max-size=\"maxSize\" rotate=\"rotate\"></pagination></div>")($rootScope)
       $rootScope.$digest()
     )
     it "contains one ul and maxsize + 4 elements", ->
@@ -274,9 +274,9 @@ describe 'pagination directive', ->
       expect(getPaginationEl(1).text().trim()).toBe "Next"
 
 
-  describe "pagination directive with `boundary-links`", ->
+  describe "with `boundary-links`", ->
     beforeEach inject(->
-      element = $compile("<pagination boundary-links=\"true\" total-items=\"total\" current-page=\"currentPage\"></pagination>")($rootScope)
+      element = $compile("<div><pagination boundary-links=\"true\" total-items=\"totalItems\" current-page=\"currentPage\"></pagination></div>")($rootScope)
       $rootScope.$digest()
     )
     it "contains one ul and num-pages + 4 li elements", ->
@@ -320,7 +320,7 @@ describe 'pagination directive', ->
       expect($rootScope.currentPage).toBe 5
 
     it "changes \"first\" & \"last\" text from attributes", ->
-      element = $compile("<pagination boundary-links=\"true\" first-text=\"<<<\" last-text=\">>>\" total-items=\"total\" current-page=\"currentPage\"></pagination>")($rootScope)
+      element = $compile('<pagination boundary-links="true" first-text="<<<" last-text=">>>" total-items="totalItems" current-page="currentPage"></pagination>')($rootScope)
       $rootScope.$digest()
       expect(getPaginationEl(0).text().trim()).toBe "<<<"
       expect(getPaginationEl(-1).text().trim()).toBe ">>>"
@@ -348,9 +348,9 @@ describe 'pagination directive', ->
       expect(getPaginationEl(-2).text().trim()).toBe ">>"
 
 
-  describe "pagination directive with just number links", ->
+  describe "with just number links", ->
     beforeEach inject(->
-      element = $compile("<pagination direction-links=\"false\" total-items=\"total\" current-page=\"currentPage\"></pagination>")($rootScope)
+      element = $compile("<pagination direction-links=\"false\" total-items=\"totalItems\" current-page=\"currentPage\"></pagination>")($rootScope)
       $rootScope.$digest()
     )
     it "contains one ul and num-pages li elements", ->
@@ -383,7 +383,7 @@ describe 'pagination directive', ->
       expect($rootScope.currentPage).toBe 2
 
     it "changes the number of items when total items changes", ->
-      $rootScope.total = 73 # 8 pages
+      $rootScope.totalItems = 73 # 8 pages
       $rootScope.$digest()
       expect(getPaginationBarSize()).toBe 8
       expect(getPaginationEl(0).text().trim()).toBe "1"
@@ -393,7 +393,7 @@ describe 'pagination directive', ->
   describe "with just boundary & number links", ->
     beforeEach inject(->
       $rootScope.directions = false
-      element = $compile("<pagination boundary-links=\"true\" direction-links=\"directions\" total-items=\"total\" current-page=\"currentPage\"></pagination>")($rootScope)
+      element = $compile("<pagination boundary-links=\"true\" direction-links=\"directions\" total-items=\"totalItems\" current-page=\"currentPage\"></pagination>")($rootScope)
       $rootScope.$digest()
     )
     it "contains number of pages + 2 li elements", ->
@@ -419,22 +419,22 @@ describe 'pagination directive', ->
   describe "`num-pages`", ->
     beforeEach inject(->
       $rootScope.numpg = null
-      element = $compile("<pagination total-items=\"total\" current-page=\"currentPage\" num-pages=\"numpg\"></pagination>")($rootScope)
+      element = $compile("<pagination total-items=\"totalItems\" current-page=\"currentPage\" num-pages=\"numpg\"></pagination>")($rootScope)
       $rootScope.$digest()
     )
     it "equals to total number of pages", ->
       expect($rootScope.numpg).toBe 5
 
     it "changes when total number of pages change", ->
-      $rootScope.total = 73 # 8 pages
+      $rootScope.totalItems = 73 # 8 pages
       $rootScope.$digest()
       expect($rootScope.numpg).toBe 8
 
     it "shows minimun one page if total items are not defined and does not break binding", ->
-      $rootScope.total = `undefined`
+      $rootScope.totalItems = `undefined`
       $rootScope.$digest()
       expect($rootScope.numpg).toBe 1
-      $rootScope.total = 73 # 8 pages
+      $rootScope.totalItems = 73 # 8 pages
       $rootScope.$digest()
       expect($rootScope.numpg).toBe 8
 
@@ -450,7 +450,7 @@ describe 'pagination directive', ->
       paginationConfig.previousText = "PR"
       paginationConfig.nextText = "NE"
       paginationConfig.lastText = "LA"
-      element = $compile("<pagination total-items=\"total\" current-page=\"currentPage\"></pagination>")($rootScope)
+      element = $compile("<pagination total-items=\"totalItems\" current-page=\"currentPage\"></pagination>")($rootScope)
       $rootScope.$digest()
     )
     afterEach inject((paginationConfig) ->
@@ -470,7 +470,7 @@ describe 'pagination directive', ->
 
   describe "override configuration from attributes", ->
     beforeEach inject(->
-      element = $compile("<pagination boundary-links=\"true\" first-text=\"<<\" previous-text=\"<\" next-text=\">\" last-text=\">>\" total-items=\"total\" current-page=\"currentPage\"></pagination>")($rootScope)
+      element = $compile("<pagination boundary-links=\"true\" first-text=\"<<\" previous-text=\"<\" next-text=\">\" last-text=\">>\" total-items=\"totalItems\" current-page=\"currentPage\"></pagination>")($rootScope)
       $rootScope.$digest()
     )
     it "contains number of pages + 4 li elements", ->
